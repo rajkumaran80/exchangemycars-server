@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch TypeScript Express App",
+        "skipFiles": ["<node_internals>/**"],
+        "runtimeArgs": [
+          "--inspect",
+          "-r",
+          "ts-node/register"
+        ],
+        "program": "${workspaceFolder}/src/index.ts",
+        "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+      }
+    ]
+  }
+  
