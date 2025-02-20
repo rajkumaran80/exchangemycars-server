@@ -17,6 +17,8 @@ export const getAllCars = async (req: Request, res: Response) => {
 
 // Create a new car
 export const createCar = async (req: Request, res: Response) => {
+  logger.info(`createCar request ${req}`);
+
   try {
     const { make, carModel, year, price, description, imageUrl, interestedInExchange } = req.body;
 
