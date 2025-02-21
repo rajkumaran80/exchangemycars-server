@@ -14,6 +14,6 @@ app.listen(PORT, () => {
 });
 
 app.use((req, res, next) => {
-  console.log("Incoming request:", req.path, req.headers.authorization);
+  console.log("Incoming request:", req.path, req.headers.authorization, req.method);
   next();
 });

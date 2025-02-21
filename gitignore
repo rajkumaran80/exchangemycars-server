@@ -129,4 +129,11 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-.idea
+# Ignore dependencies
+node_modules/
+
+# Ignore build output
+dist/
+
+# Ignore IDE settings (JetBrains/WebStorm)
+.idea/

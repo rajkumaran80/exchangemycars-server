@@ -7,7 +7,7 @@ export interface ICar extends Document {
   year: number;
   price: number;
   description: string;
-  imageUrl: string;
+  photos: string[];
   owner: Types.ObjectId | IUser; // Can be an ObjectId or a populated User document
   interestedInExchange: boolean;
   interestedCars: Types.ObjectId[];
@@ -19,7 +19,7 @@ const CarSchema = new Schema<ICar>({
   year: { type: Number, required: true },
   price: { type: Number, required: true },
   description: { type: String, required: true },
-  imageUrl: { type: String, required: true },
+  photos: [{ type: String, required: true }],
   owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   interestedInExchange: { type: Boolean, default: false },
   interestedCars: [{ type: Schema.Types.ObjectId, ref: 'Car' }],
