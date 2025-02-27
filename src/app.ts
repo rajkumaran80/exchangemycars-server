@@ -10,6 +10,8 @@ import { carRoutes } from './routes/carRoutes.js';
 import { userRoutes } from './routes/userRoutes.js';
 import { authRoutes } from './routes/authRoutes.js'
 import { uploadRoutes } from './routes/uploadRoutes.js';
+import carMakeRoutes from "./routes/carMakeRoutes.js";
+import carDetailsRoutes from "./routes/carDetailsRoutes.js";
 
 const app = express();
 app.use(express.json());
@@ -32,5 +34,7 @@ app.use('/api/cars', carRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use('/api/car-makes', carMakeRoutes);
+app.use('/api/car-details', carDetailsRoutes);
 
 export default app;
