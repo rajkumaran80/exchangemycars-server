@@ -137,3 +137,5 @@ dist/
 
 # Ignore IDE settings (JetBrains/WebStorm)
 .idea/
+dist
+node_modules
