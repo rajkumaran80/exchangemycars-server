@@ -11,7 +11,7 @@ export const getCarMakes = async (req: Request, res: Response) => {
     }
 };
 
-// Add a new car make
+// Add a new car name
 export const addCarMake = async (req: Request, res: Response) => {
     try {
         const { make } = req.body;
@@ -30,10 +30,10 @@ export const updateCarMake = async (req: Request, res: Response) => {
 
         const carMake = await CarMake.findOne({ make });
         if (!carMake) {
-            return res.status(404).json({ message: 'Car make not found' });
+            return res.status(404).json({ message: 'Car name not found' });
         }
 
-        carMake.make = newMake;
+        carMake.name = newMake;
         await carMake.save();
 
         res.json(carMake);
@@ -48,23 +48,23 @@ export const deleteCarMake = async (req: Request, res: Response) => {
 
         const result = await CarMake.deleteOne({ make });
         if (result.deletedCount === 0) {
-            return res.status(404).json({ message: 'Car make not found' });
+            return res.status(404).json({ message: 'Car name not found' });
         }
 
-        res.json({ message: 'Car make deleted successfully' });
+        res.json({ message: 'Car name deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
 };
 
-// Add a new model to a car make
+// Add a new model to a car name
 export const addCarModel = async (req: Request, res: Response) => {
     try {
         const { make } = req.params;
         const { name, variants } = req.body;
         const carMake = await CarMake.findOne({ make });
         if (!carMake) {
-            return res.status(404).json({ message: 'Car make not found' });
+            return res.status(404).json({ message: 'Car name not found' });
         }
         carMake.models.push({ name, variants });
         await carMake.save();
@@ -81,7 +81,7 @@ export const updateCarModel = async (req: Request, res: Response) => {
         const { name, variants } = req.body;
         const carMake = await CarMake.findOne({ make });
         if (!carMake) {
-            return res.status(404).json({ message: 'Car make not found' });
+            return res.status(404).json({ message: 'Car name not found' });
         }
         const modelIndex = carMake.models.findIndex((m) => m.name === modelName);
         if (modelIndex === -1) {
@@ -101,7 +101,7 @@ export const deleteCarModel = async (req: Request, res: Response) => {
         const { make, modelName } = req.params;
         const carMake = await CarMake.findOne({ make });
         if (!carMake) {
-            return res.status(404).json({ message: 'Car make not found' });
+            return res.status(404).json({ message: 'Car name not found' });
         }
         carMake.models = carMake.models.filter((m) => m.name !== modelName);
         await carMake.save();
@@ -118,7 +118,7 @@ export const addCarVariant = async (req: Request, res: Response) => {
 
         const carMake = await CarMake.findOne({ make });
         if (!carMake) {
-            return res.status(404).json({ message: 'Car make not found' });
+            return res.status(404).json({ message: 'Car name not found' });
         }
 
         const modelIndex = carMake.models.findIndex((m) => m.name === modelName);
@@ -142,7 +142,7 @@ export const updateCarVariant = async (req: Request, res: Response) => {
 
         const carMake = await CarMake.findOne({ make });
         if (!carMake) {
-            return res.status(404).json({ message: 'Car make not found' });
+            return res.status(404).json({ message: 'Car name not found' });
         }
 
         const modelIndex = carMake.models.findIndex((m) => m.name === modelName);
@@ -172,7 +172,7 @@ export const deleteCarVariant = async (req: Request, res: Response) => {
 
         const carMake = await CarMake.findOne({ make });
         if (!carMake) {
-            return res.status(404).json({ message: 'Car make not found' });
+            return res.status(404).json({ message: 'Car name not found' });
         }
 
         const modelIndex = carMake.models.findIndex((m) => m.name === modelName);

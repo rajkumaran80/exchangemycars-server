@@ -49,31 +49,46 @@ export const getCarDetails = async (req: Request, res: Response) => {
             }
         );
 
-        // Extract and filter the required data
-        // const carData = response.data;
-        // const filteredData = {
-        //     make: carData.result.basic_vehicle_info.manufacturer_desc,
-        //     model: carData.result.basic_vehicle_info.model_range_desc,
-        //     variant: carData.result.basic_vehicle_info.trim_level_desc,
-        //     vehicle_desc: carData.result.basic_vehicle_info.derivative_desc,
-        //     registration: carData.result.basic_vehicle_info.vehicle_registration_mark,
-        //     mileage: mileage,
-        //     fuelType: carData.result.basic_vehicle_info.autotrader_fuel_type_desc,
-        //     bodyType: carData.result.basic_vehicle_info.body_type,
-        //     colour: carData.result.basic_vehicle_info.colour,
-        //     transmission: carData.result.basic_vehicle_info.autotrader_transmission_desc,
-        //     dateOfFirstRegistration: carData.result.basic_vehicle_info.first_registration_date,
-        // };
+        const dvlaData = dvlaResponse.data;
+        const oneAutoBasicVehicleInfo = oneAutoResponse.data.result.basic_vehicle_info;
+        const oneAutoBasicVehicleCheck = oneAutoResponse.data.result.basic_vehicle_check;
 
-        // Add additional values to the response
-        const modifiedCarData = {
-            ...dvlaResponse.data,
-            ...oneAutoResponse.data,
-            mileage: mileage
+        const carDetails = {
+            mileage: mileage,
+            registrationNumber: dvlaData.registrationNumber,
+            taxStatus: dvlaData.taxStatus,
+            taxDueDate: dvlaData.taxDueDate,
+            motStatus: dvlaData.motStatus,
+            motExpiryDate: dvlaData.motExpiryDate,
+            monthOfFirstRegistration: dvlaData.monthOfFirstRegistration,
+            yearOfManufacture: dvlaData.yearOfManufacture,
+            engineCapacity: dvlaData.engineCapacity,
+            co2Emissions: dvlaData.co2Emissions,
+            fuelType: dvlaData.fuelType,
+            colour: dvlaData.colour,
+            carMake: dvlaData.make,
+            carModel: oneAutoBasicVehicleInfo.model_range_desc,
+            variant: oneAutoBasicVehicleInfo.trim_level_desc,
+            vehicleShortDescription: oneAutoBasicVehicleInfo.derivative_desc,
+            vehicleFullDescription: oneAutoBasicVehicleInfo.vehicle_desc,
+            bodyType: oneAutoBasicVehicleInfo.autotrader_body_type_desc,
+            transmission: oneAutoBasicVehicleInfo.autotrader_transmission_desc,
+            drivetrainType: oneAutoBasicVehicleInfo.autotrader_drivetrain_type_desc,
+            numberOfSeats: oneAutoBasicVehicleInfo.number_seats,
+            numberOfDoors: oneAutoBasicVehicleInfo.number_doors,
+            dateOfFirstRegistration: oneAutoBasicVehicleInfo.first_registration_date,
+            vehicleIdentificationNumber: oneAutoBasicVehicleInfo.vehicle_identification_number,
+            isStolen: oneAutoBasicVehicleCheck.is_stolen,
+            isScrapped: oneAutoBasicVehicleCheck.is_scrapped,
+            isExported: oneAutoBasicVehicleCheck.is_exported,
+            isImported: oneAutoBasicVehicleCheck.is_imported,
+            numberOfPreviousKeepers: oneAutoBasicVehicleCheck.number_previous_keepers,
+            dateOfLastKeeperChange: oneAutoBasicVehicleCheck.date_of_last_keeper_change,
+            previousKeeperAcquisitionDate: oneAutoBasicVehicleCheck.previous_keeper_acquisition_date
         };
 
         // Return the filtered data to the frontend
-        res.json(modifiedCarData);
+        res.json(carDetails);
     } catch (error) {
         console.error('Error fetching car details:', error);
         res.status(500).json({ message: 'Failed to fetch car details.' });

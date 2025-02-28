@@ -12,7 +12,7 @@ export interface IModel {
 }
 
 export interface ICarMake extends Document {
-    make: string;
+    name: string;
     models: IModel[];
 }
 
@@ -28,7 +28,7 @@ const ModelSchema: Schema = new Schema({
 });
 
 const CarMakeSchema: Schema = new Schema({
-    make: { type: String, required: true, unique: true },
+    name: { type: String, required: true, unique: true },
     models: [ModelSchema],
 });
 
