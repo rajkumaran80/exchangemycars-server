@@ -1,7 +1,5 @@
 import { Router } from 'express';
-import Car from '../models/Car.js';
-import { sendEmailNotification } from '../utils/email.js';
-import { createCarAdvert, getCarById, updateCar } from '../controllers/carAdvertController.js';
+import { createCarAdvert } from '../controllers/carAdvertController.js';
 import { authenticate } from '../controllers/authController.js';
 
 const carAdvertRoutes = Router();
@@ -13,10 +11,10 @@ const carAdvertRoutes = Router();
 carAdvertRoutes.post('/', authenticate, createCarAdvert); // Protect the route
 
 // GET /api/cars/:id - Get a single car by ID
-carAdvertRoutes.get('/:id', getCarById);
+// carAdvertRoutes.get('/:id', getCarById);
 
 // PUT /api/cars/:id - Update a car by ID
-carAdvertRoutes.put('/:id', authenticate, updateCar);
+// carAdvertRoutes.put('/:id', authenticate, updateCar);
 
 
 // Express interest in a car

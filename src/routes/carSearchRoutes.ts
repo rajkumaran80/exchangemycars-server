@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import Car from '../models/Car.js';
 import { sendEmailNotification } from '../utils/email.js';
-import { createCarAdvert, getCarById, updateCar } from '../controllers/carAdvertController.js';
+import { createCarAdvert } from '../controllers/carAdvertController.js';
 import { authenticate } from '../controllers/authController.js';
 import {searchCars} from "../controllers/carSearchController.js";
 
