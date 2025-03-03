@@ -22,13 +22,16 @@ export const getCarDetails = async (req, res) => {
             },
         });
         if (dvlaResponse.status !== 200) {
-            return res.status(400).json({ message: 'Sorry unable to find the vehicle details' });
+            return res.status(400).json({ message: 'Sorry unable to find the vehicle details from dvla' });
         }
         const oneAutoResponse = await axios.get(`${baseUrl}/autotrader/vehiclelookupfromvrm/v2?vehicle_registration_mark=${registrationNumber}`, {
             headers: {
                 'x-api-key': apiKey,
             },
         });
+        if (oneAutoResponse.status !== 200) {
+            return res.status(400).json({ message: 'Sorry unable to find the vehicle details from ' });
+        }
         const dvlaData = dvlaResponse.data;
         const oneAutoBasicVehicleInfo = oneAutoResponse.data.result.basic_vehicle_info;
         const oneAutoBasicVehicleCheck = oneAutoResponse.data.result.basic_vehicle_check;

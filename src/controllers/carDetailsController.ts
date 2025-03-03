@@ -37,7 +37,7 @@ export const getCarDetails = async (req: Request, res: Response) => {
         );
 
         if (dvlaResponse.status !== 200) {
-            return res.status(400).json({ message: 'Sorry unable to find the vehicle details' });
+            return res.status(400).json({ message: 'Sorry unable to find the vehicle details from dvla' });
         }
 
         const oneAutoResponse = await axios.get(
@@ -48,6 +48,10 @@ export const getCarDetails = async (req: Request, res: Response) => {
                 },
             }
         );
+
+        if (oneAutoResponse.status !== 200) {
+            return res.status(400).json({ message: 'Sorry unable to find the vehicle details from ' });
+        }
 
         const dvlaData = dvlaResponse.data;
         const oneAutoBasicVehicleInfo = oneAutoResponse.data.result.basic_vehicle_info;

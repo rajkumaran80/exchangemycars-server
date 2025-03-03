@@ -1,4 +1,5 @@
 import logger from '../utils/logger.js';
+import { downloadPresignedUrl } from "./uploadController.js";
 import CarAdvert from "../models/CarAdvert.js";
 import axios from "axios";
 // Helper function to get coordinates from UK postcode
@@ -53,8 +54,12 @@ export const createCarAdvert = async (req, res) => {
             owner, // Link the car to the user
         });
         const savedCarAdvert = await newCarAdvert.save();
+        const presignedPhotos = savedCarAdvert?.images
+            ? await Promise.all(savedCarAdvert.images.map(image => downloadPresignedUrl(image)))
+            : [];
+        savedCarAdvert.images = presignedPhotos;
         // Return the created advert along with the car details
-        res.status(201).json({ carAdvert: savedCarAdvert });
+        res.status(201).json(savedCarAdvert);
     }
     catch (error) {
         logger.error("Error creating car advert:", error);
