@@ -43,21 +43,35 @@ export const searchCars = async (req, res) => {
         const query = {};
         // Handle non-geo filters
         Object.entries(otherFilters).forEach(([key, value]) => {
-            if (value) {
-                switch (key) {
-                    case 'priceFrom':
-                    case 'priceTo':
-                    case 'yearFrom':
-                    case 'yearTo':
-                    case 'mileageFrom':
-                    case 'mileageTo':
-                        const [field, operator] = key.split(/(?=[A-Z])/);
-                        query[field] = query[field] || {};
-                        query[field][`$${operator.toLowerCase()}`] = Number(value);
-                        break;
-                    default:
+            if (!value)
+                return;
+            switch (key) {
+                case 'priceFrom':
+                case 'priceTo':
+                case 'yearFrom':
+                case 'yearTo':
+                case 'mileageFrom':
+                case 'mileageTo':
+                    const [field, operator] = key.split(/(?=[A-Z])/);
+                    query[field] = query[field] || {};
+                    query[field][`$${operator.toLowerCase()}`] = Number(value);
+                    break;
+                case 'numberOfDoors':
+                case 'numberOfSeats':
+                    if (Array.isArray(value)) {
+                        query[key] = { $in: value.map(Number) };
+                    }
+                    else {
+                        query[key] = Number(value);
+                    }
+                    break;
+                default:
+                    if (Array.isArray(value)) {
+                        query[key] = { $in: value };
+                    }
+                    else {
                         query[key] = value;
-                }
+                    }
             }
         });
         // Handle geospatial query
@@ -92,21 +106,39 @@ export const searchFilters = async (req, res) => {
         const query = {};
         // Handle non-geo filters
         Object.entries(otherFilters).forEach(([key, value]) => {
-            if (value) {
-                switch (key) {
-                    case 'priceFrom':
-                    case 'priceTo':
-                    case 'yearFrom':
-                    case 'yearTo':
-                    case 'mileageFrom':
-                    case 'mileageTo':
-                        const [field, operator] = key.split(/(?=[A-Z])/);
-                        query[field] = query[field] || {};
-                        query[field][`$${operator.toLowerCase()}`] = Number(value);
-                        break;
-                    default:
+            if (!value || (Array.isArray(value) && value.length === 0))
+                return;
+            switch (key) {
+                case 'priceFrom':
+                case 'priceTo':
+                case 'yearFrom':
+                case 'yearTo':
+                case 'mileageFrom':
+                case 'mileageTo':
+                    const [field, operator] = key.split(/(?=[A-Z])/);
+                    query[field] = query[field] || {};
+                    query[field][`$${operator.toLowerCase()}`] = Number(value);
+                    break;
+                case 'numberOfDoors':
+                case 'numberOfSeats':
+                    if (Array.isArray(value)) {
+                        if (value.length > 0) {
+                            query[key] = { $in: value.map(Number) };
+                        }
+                    }
+                    else {
+                        query[key] = Number(value);
+                    }
+                    break;
+                default:
+                    if (Array.isArray(value)) {
+                        if (value.length > 0) {
+                            query[key] = { $in: value };
+                        }
+                    }
+                    else {
                         query[key] = value;
-                }
+                    }
             }
         });
         // Handle geospatial query
