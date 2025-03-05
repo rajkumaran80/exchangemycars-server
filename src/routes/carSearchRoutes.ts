@@ -2,12 +2,13 @@ import { Router } from 'express';
 import { sendEmailNotification } from '../utils/email.js';
 import { createCarAdvert } from '../controllers/carAdvertController.js';
 import { authenticate } from '../controllers/authController.js';
-import {searchCars} from "../controllers/carSearchController.js";
+import {searchCars, searchFilters} from "../controllers/carSearchController.js";
 
 const carSearchRoutes = Router();
 
 // GET /api/cars - Get all cars
 carSearchRoutes.get('/', searchCars);
+carSearchRoutes.post('/filters', searchFilters);
 
 // POST /api/cars - Create a new car
 // carSearchRoutes.post('/', authenticate, createCarAdvert); // Protect the route

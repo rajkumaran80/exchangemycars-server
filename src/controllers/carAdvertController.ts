@@ -61,8 +61,7 @@ export const createCarAdvert = async (req: Request, res: Response) => {
     // Step 1: Create and save the Car document
     const newCarAdvert = new CarAdvert({
       ...carDetails,
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude,
+      coordinates : [coordinates.latitude, coordinates.longitude],
       owner, // Link the car to the user
     });
 
