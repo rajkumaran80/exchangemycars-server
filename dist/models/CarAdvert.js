@@ -43,6 +43,10 @@ const CarAdvertSchema = new Schema({
             },
             message: 'Invalid coordinates. Must be [longitude, latitude] between -180/180 and -90/90'
         }
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 CarAdvertSchema.index({ carMake: 1 });
@@ -57,5 +61,5 @@ CarAdvertSchema.index({ colour: 1 });
 CarAdvertSchema.index({ numberOfDoors: 1 });
 CarAdvertSchema.index({ numberOfSeats: 1 });
 CarAdvertSchema.index({ fuelType: 1 });
-CarAdvertSchema.index({ location: '2dsphere' });
+CarAdvertSchema.index({ coordinates: '2dsphere' });
 export default mongoose.model('CarAdvert', CarAdvertSchema);

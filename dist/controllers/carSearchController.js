@@ -39,59 +39,99 @@ const createGeoFilter = (longitude, latitude, distanceMiles) => ({
 });
 export const searchCars = async (req, res) => {
     try {
-        const { postcode, distance, ...otherFilters } = req.query;
-        const query = {};
-        // Handle non-geo filters
-        Object.entries(otherFilters).forEach(([key, value]) => {
-            if (!value)
-                return;
-            switch (key) {
-                case 'priceFrom':
-                case 'priceTo':
-                case 'yearFrom':
-                case 'yearTo':
-                case 'mileageFrom':
-                case 'mileageTo':
-                    const [field, operator] = key.split(/(?=[A-Z])/);
-                    query[field] = query[field] || {};
-                    query[field][`$${operator.toLowerCase()}`] = Number(value);
-                    break;
-                case 'numberOfDoors':
-                case 'numberOfSeats':
-                    if (Array.isArray(value)) {
-                        query[key] = { $in: value.map(Number) };
-                    }
-                    else {
-                        query[key] = Number(value);
-                    }
-                    break;
-                default:
-                    if (Array.isArray(value)) {
-                        query[key] = { $in: value };
-                    }
-                    else {
-                        query[key] = value;
-                    }
-            }
-        });
+        const { postcode, distance, sortBy = 'relevance', ...otherFilters } = req.query;
+        const query = buildQuery(otherFilters);
         // Handle geospatial query
+        let geoFilter = {};
         if (postcode && distance && distance !== 'National') {
             const userLocation = await getCoordinates(postcode);
             if (!userLocation)
                 return res.status(400).json({ message: 'Invalid postcode' });
-            // Add 10% buffer to the distance to account for coordinate inaccuracies
             const bufferDistance = Number(distance) * 1.1;
-            Object.assign(query, createGeoFilter(userLocation.latitude, userLocation.longitude, bufferDistance));
+            geoFilter = createGeoFilter(userLocation.latitude, userLocation.longitude, bufferDistance);
         }
-        // Combine queries
-        const carAdverts = await CarAdvert.find(query)
-            .populate('owner', 'name email');
+        // Build base pipeline
+        const aggregationPipeline = [];
+        // Handle distance sorting first (must be first stage)
+        if (sortBy === 'distance_asc' && postcode) {
+            const userLocation = await getCoordinates(postcode);
+            if (userLocation) {
+                aggregationPipeline.push({
+                    $geoNear: {
+                        near: {
+                            type: 'Point',
+                            coordinates: [userLocation.longitude, userLocation.latitude]
+                        },
+                        distanceField: 'distance',
+                        query: { ...query, ...geoFilter },
+                        spherical: true
+                    }
+                });
+            }
+        }
+        else {
+            // Regular match stage
+            if (Object.keys(query).length > 0 || Object.keys(geoFilter).length > 0) {
+                aggregationPipeline.push({
+                    $match: { ...query, ...geoFilter }
+                });
+            }
+        }
+        // Add sorting
+        switch (sortBy) {
+            case 'price_asc':
+                aggregationPipeline.push({ $sort: { price: 1 } });
+                break;
+            case 'price_desc':
+                aggregationPipeline.push({ $sort: { price: -1 } });
+                break;
+            case 'mileage_asc':
+                aggregationPipeline.push({ $sort: { mileage: 1 } });
+                break;
+            case 'yearOfManufacture_desc':
+                aggregationPipeline.push({ $sort: { yearOfManufacture: -1 } });
+                break;
+            case 'yearOfManufacture_asc':
+                aggregationPipeline.push({ $sort: { yearOfManufacture: 1 } });
+                break;
+            case 'date_desc':
+                aggregationPipeline.push({ $sort: { createdAt: -1 } });
+                break;
+        }
+        // Add common pipeline stages
+        aggregationPipeline.push({
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner"
+            }
+        }, {
+            $unwind: {
+                path: "$owner",
+                preserveNullAndEmptyArrays: true
+            }
+        }, {
+            $project: {
+                // Include all fields except MongoDB internal fields
+                __v: 0,
+                'owner.__v': 0,
+                'owner.password': 0,
+                // Add other fields to include/exclude as needed
+            }
+        });
+        // Execute aggregation
+        const carAdverts = await CarAdvert.aggregate(aggregationPipeline);
+        // console.log('carAdverts ' + JSON.stringify(carAdverts));
         // Process images
         const results = await Promise.all(carAdverts.map(async (carAdvert) => {
             const presignedPhotos = carAdvert?.images
-                ? await Promise.all(carAdvert.images.map(image => downloadPresignedUrl(image)))
+                ? await Promise.all(carAdvert.images.map((image) => downloadPresignedUrl(image)))
                 : [];
-            return { ...carAdvert.toObject(), images: presignedPhotos };
+            return {
+                ...carAdvert, // Remove .toObject()
+                images: presignedPhotos
+            };
         }));
         res.status(200).json(results);
     }
@@ -102,51 +142,13 @@ export const searchCars = async (req, res) => {
 };
 export const searchFilters = async (req, res) => {
     try {
-        const { postcode, distance, ...otherFilters } = req.body;
-        const query = {};
-        // Handle non-geo filters
-        Object.entries(otherFilters).forEach(([key, value]) => {
-            if (!value || (Array.isArray(value) && value.length === 0))
-                return;
-            switch (key) {
-                case 'priceFrom':
-                case 'priceTo':
-                case 'yearFrom':
-                case 'yearTo':
-                case 'mileageFrom':
-                case 'mileageTo':
-                    const [field, operator] = key.split(/(?=[A-Z])/);
-                    query[field] = query[field] || {};
-                    query[field][`$${operator.toLowerCase()}`] = Number(value);
-                    break;
-                case 'numberOfDoors':
-                case 'numberOfSeats':
-                    if (Array.isArray(value)) {
-                        if (value.length > 0) {
-                            query[key] = { $in: value.map(Number) };
-                        }
-                    }
-                    else {
-                        query[key] = Number(value);
-                    }
-                    break;
-                default:
-                    if (Array.isArray(value)) {
-                        if (value.length > 0) {
-                            query[key] = { $in: value };
-                        }
-                    }
-                    else {
-                        query[key] = value;
-                    }
-            }
-        });
+        const { postcode, distance, sortBy, ...otherFilters } = req.body;
+        const query = buildQuery(otherFilters);
         // Handle geospatial query
         if (postcode && distance && distance !== 'National') {
             const userLocation = await getCoordinates(postcode);
             if (!userLocation)
                 return res.status(400).json({ message: 'Invalid postcode' });
-            // Add 10% buffer to the distance to account for coordinate inaccuracies
             const bufferDistance = Number(distance) * 1.1;
             Object.assign(query, createGeoFilter(userLocation.latitude, userLocation.longitude, bufferDistance));
         }
@@ -163,6 +165,44 @@ export const searchFilters = async (req, res) => {
         console.error("Options Error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
+};
+const buildQuery = (filters) => {
+    const query = {};
+    Object.entries(filters).forEach(([key, value]) => {
+        if (!value || (Array.isArray(value) && value.length === 0))
+            return;
+        switch (key) {
+            case 'price_from':
+            case 'price_to':
+            case 'yearOfManufacture_from':
+            case 'yearOfManufacture_to':
+            case 'mileage_from':
+            case 'mileage_to':
+                const [field, rawOperator] = key.split(/(?=_)/);
+                const operator = rawOperator.replace('_', '');
+                const mongoOperator = operator === 'from' ? '$gte' : '$lte';
+                query[field] = query[field] || {};
+                query[field][mongoOperator] = Number(value);
+                break;
+            case 'numberOfDoors':
+            case 'numberOfSeats':
+                if (Array.isArray(value)) {
+                    query[key] = { $in: value.map(Number) };
+                }
+                else {
+                    query[key] = Number(value);
+                }
+                break;
+            default:
+                if (Array.isArray(value)) {
+                    query[key] = { $in: value };
+                }
+                else {
+                    query[key] = value;
+                }
+        }
+    });
+    return query;
 };
 async function getFilterCounts(baseQuery) {
     const counts = {};

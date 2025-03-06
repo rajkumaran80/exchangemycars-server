@@ -21,7 +21,7 @@ export const uploadPresignedUrl = async (req, res) => {
             ContentType: fileType,
         });
         const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-        console.log("presignedUrl:" + presignedUrl);
+        // console.log("presignedUrl:" + presignedUrl);
         res.json({ url: presignedUrl });
     }
     catch (error) {
@@ -35,6 +35,6 @@ export const downloadPresignedUrl = async (key) => {
         Key: key,
     });
     const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
-    console.log("presignedUrl:" + url);
+    // console.log("presignedUrl:" + url);
     return url;
 };
