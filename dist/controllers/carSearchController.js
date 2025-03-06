@@ -166,12 +166,29 @@ export const searchFilters = async (req, res) => {
 };
 async function getFilterCounts(baseQuery) {
     const counts = {};
-    // Count available options for each filter
-    const filters = ["carMake", "carModel", "variant", "transmission", "fuelType", "bodyType", "colour", "numberOfDoors", "numberOfSeats"];
+    const filters = [
+        "carMake", "carModel", "variant",
+        "transmission", "fuelType", "bodyType",
+        "colour", "numberOfDoors", "numberOfSeats"
+    ];
+    // Define filter dependencies
+    const filterDependencies = {
+        carMake: ['carModel', 'variant'],
+        carModel: ['variant'],
+        variant: []
+    };
     for (const filter of filters) {
+        // Clone and remove current filter + its dependencies
+        const query = JSON.parse(JSON.stringify(baseQuery));
+        // Remove dependent filters
+        const dependencies = filterDependencies[filter] || [];
+        [filter, ...dependencies].forEach(f => delete query[f]);
         counts[filter] = await CarAdvert.aggregate([
-            { $match: baseQuery },
-            { $group: { _id: `$${filter}`, count: { $sum: 1 } } },
+            { $match: query },
+            { $group: {
+                    _id: `$${filter}`,
+                    count: { $sum: 1 }
+                } },
             { $sort: { count: -1 } }
         ]);
     }
