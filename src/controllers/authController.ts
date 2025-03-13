@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response , NextFunction} from 'express';
 import bcrypt from 'bcryptjs';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import User from '../models/User.js';
@@ -23,7 +23,7 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login1 = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -37,6 +37,22 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error });
   }
+};
+
+// Local login route
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate('local', { session: true }, (err: any, user: any, info: any) => {
+    if (err) return res.status(500).json({ message: 'Internal Server Error' });
+    if (!user) return res.status(400).json({ message: info?.message || 'Login failed' });
+
+    req.login(user, (loginErr: any) => {
+      if (loginErr) return res.status(500).json({ message: 'Login failed' });
+
+      // Send user and token as a response
+      const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
+      res.status(200).json({ token: jwtToken, user: { name: user.name, email: user.email } });
+    });
+  })(req, res, next);
 };
 
 export const authenticate = async (req: any, res: any, next: any) => {

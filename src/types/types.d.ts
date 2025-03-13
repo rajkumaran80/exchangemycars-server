@@ -4,7 +4,7 @@ declare global {
   namespace Express {
     interface User extends IUser {} // Extend Express.User with IUser
     interface Request {
-      user?: User; // Add a user property to Express.Request
+      user?: IUser; // Add a user property to Express.Request
     }
   }
 }

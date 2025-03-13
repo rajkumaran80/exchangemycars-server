@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import admin from 'firebase-admin';
+import passport from "passport";
 export const register = async (req, res) => {
     const { name, email, password } = req.body;
     try {
@@ -17,7 +18,7 @@ export const register = async (req, res) => {
         res.status(500).json({ message: 'Error registering user', error });
     }
 };
-export const login = async (req, res) => {
+export const login1 = async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ email });
@@ -33,6 +34,22 @@ export const login = async (req, res) => {
     catch (error) {
         res.status(500).json({ message: 'Error logging in', error });
     }
+};
+// Local login route
+export const login = async (req, res, next) => {
+    passport.authenticate('local', { session: true }, (err, user, info) => {
+        if (err)
+            return res.status(500).json({ message: 'Internal Server Error' });
+        if (!user)
+            return res.status(400).json({ message: info?.message || 'Login failed' });
+        req.login(user, (loginErr) => {
+            if (loginErr)
+                return res.status(500).json({ message: 'Login failed' });
+            // Send user and token as a response
+            const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+            res.status(200).json({ token: jwtToken, user: { name: user.name, email: user.email } });
+        });
+    })(req, res, next);
 };
 export const authenticate = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');

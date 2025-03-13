@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 
 // Define the IUser interface
 export interface IUser extends Document {
-  _id: string; // Explicitly define _id
+  //_id: string; // Explicitly define _id
   name: string;
   email: string;
   password?: string;

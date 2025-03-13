@@ -13,7 +13,7 @@ import carMakeRoutes from "./routes/carMakeRoutes.js";
 import carDetailsRoutes from "./routes/carDetailsRoutes.js";
 import carAdvertRoutes from "./routes/carAdvertRoutes.js";
 import carSearchRoutes from "./routes/carSearchRoutes.js";
-import { configureGoogleStrategy , configureFacebookStrategy} from '././utils/authStrategy.js';
+import {configureGoogleStrategy, configureFacebookStrategy, configureLocalStrategy} from '././utils/authStrategy.js';
 
 const app = express();
 app.use(express.json());
@@ -44,6 +44,7 @@ mongoose.connect(process.env.MONGO_URI!)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Call both strategy configuration functions
+configureLocalStrategy();
 configureGoogleStrategy();
 // configureFacebookStrategy();
 
