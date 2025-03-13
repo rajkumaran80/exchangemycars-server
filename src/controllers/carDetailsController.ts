@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
 import axios from 'axios';
-import cors from 'cors';
-import dotenv from 'dotenv';
+// import cors from 'cors';
+// import dotenv from 'dotenv';
 import logger from "../utils/logger.js";
 
-dotenv.config();
+// dotenv.config();
 
 const baseUrl = process.env.ONE_AUTO_API_BASE_URL;
 const apiKey = process.env.ONE_AUTO_API_KEY;

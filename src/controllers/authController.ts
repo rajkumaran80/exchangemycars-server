@@ -1,9 +1,12 @@
-// src/middleware/authService.ts
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import User from '../models/User.js';
 import admin from 'firebase-admin';
+
+import axios from "axios";
+import passport from "passport";
+import app from "../app.js";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -22,8 +25,6 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-
-
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'User not found...' + email});
@@ -31,22 +32,12 @@ export const login = async (req: Request, res: Response) => {
     const isMatch = await bcrypt.compare(password, user.password!);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
-    res.status(200).json({ token });
+    const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
+    res.status(200).json({ token: jwtToken, user: { name: user.name, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error });
   }
 };
-
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // Fix newline characters
-  }),
-});
-
-
 
 export const authenticate = async (req: any, res: any, next: any) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -69,3 +60,15 @@ export const authenticate = async (req: any, res: any, next: any) => {
     res.status(401).json({ message: 'Token is not valid' });
   }
 };
+
+export const verifyToken = async (req: any, res: any, next: any) => {
+  const { token } = req.body;
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    res.status(200).send(decodedToken);
+  } catch (error) {
+    res.status(401).send({ error: 'Invalid token' });
+  }
+};
+
+

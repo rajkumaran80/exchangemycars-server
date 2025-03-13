@@ -1,19 +1,19 @@
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();
 
-console.log('CLIENT_ID:', process.env.CLIENT_ID);
+import app from "./app.js";
+import * as http from "node:http";
+
+const PORT = process.env.PORT;
 
 
-import app from './app.js';
-import './service/authService.js';
+// Create and start the server
+const server = http.createServer(app);
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-app.use((req, res, next) => {
-  console.log("Incoming request:", req.path, req.headers.authorization, req.method);
-  next();
-});
+
+
+

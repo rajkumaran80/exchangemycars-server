@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-dotenv.config();
+// import dotenv from 'dotenv';
+//
+// dotenv.config();
 // Create a transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
     service: 'gmail', // Use Gmail as the email service

@@ -9,15 +9,6 @@ import {
 
 const carMakeRouter = express.Router();
 
-// carMakeRouter.get('/', getCarMakes);
-// carMakeRouter.post('/', addCarMake);
-// carMakeRouter.post('/:name/models', addCarModel);
-// carMakeRouter.put('/models/:modelName', updateCarModel);
-// carMakeRouter.delete('/:name/models/:modelName', deleteCarModel);
-// carMakeRouter.delete('/:name/models/:modelName', deleteCarModel);
-// carMakeRouter.delete('/:name/models/:modelName', deleteCarModel);
-// carMakeRouter.delete('/:name/models/:modelName', deleteCarModel);
-
 carMakeRouter.get('/', getCarMakes);
 carMakeRouter.post('/', addCarMake);
 carMakeRouter.put('/:make', updateCarMake);

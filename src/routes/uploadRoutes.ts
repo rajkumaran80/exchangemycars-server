@@ -1,9 +1,9 @@
 import {Router} from "express";
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 import {authenticate} from "../controllers/authController.js";
 import {uploadPresignedUrl} from "../controllers/uploadController.js";
 
-dotenv.config();
+// dotenv.config();
 
 const uploadRoutes = Router();
 
