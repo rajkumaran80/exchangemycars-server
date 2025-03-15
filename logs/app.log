@@ -532,3 +532,101 @@
 2025-03-05T22:57:01.049Z [[32MINFO[39M]: presignedUrl request [object Object]
 2025-03-05T22:57:01.132Z [[32MINFO[39M]: presignedUrl request [object Object]
 2025-03-05T22:57:01.197Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-13T14:54:22.238Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-13T14:54:46.242Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-13T14:54:46.407Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-13T14:54:46.630Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-13T14:54:46.690Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-13T14:54:46.745Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-13T14:54:46.829Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-14T10:16:35.527Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-14T10:17:01.492Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:01.828Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:01.888Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:01.946Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:02.382Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:02.491Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:02.556Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:02.610Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:02.671Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T10:17:02.834Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-14T23:29:35.952Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-14T23:30:03.730Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-14T23:33:38.493Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-14T23:33:57.059Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:57.349Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:57.478Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:57.544Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:57.654Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:57.797Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:57.862Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:57.939Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:58.000Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-14T23:33:58.061Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-14T23:33:58.167Z [[31MERROR[39M]: Error creating car advert: CarAdvert validation failed: previousKeeperAcquisitionDate: Path `previousKeeperAcquisitionDate` is required., dateOfLastKeeperChange: Path `dateOfLastKeeperChange` is required., numberOfPreviousKeepers: Path `numberOfPreviousKeepers` is required., drivetrainType: Path `drivetrainType` is required., vehicleFullDescription: Path `vehicleFullDescription` is required., vehicleShortDescription: Path `vehicleShortDescription` is required.
+2025-03-15T13:32:47.136Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:47.395Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:47.886Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:47.941Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:48.068Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:48.424Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:48.483Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:48.560Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:48.626Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:32:48.725Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-15T13:32:48.832Z [[31MERROR[39M]: Error creating car advert: CarAdvert validation failed: previousKeeperAcquisitionDate: Path `previousKeeperAcquisitionDate` is required., dateOfLastKeeperChange: Path `dateOfLastKeeperChange` is required., numberOfPreviousKeepers: Path `numberOfPreviousKeepers` is required., drivetrainType: Path `drivetrainType` is required., vehicleFullDescription: Path `vehicleFullDescription` is required., vehicleShortDescription: Path `vehicleShortDescription` is required.
+2025-03-15T13:33:39.823Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T13:33:56.753Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:56.910Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:56.961Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:57.052Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:57.118Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:57.166Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:57.238Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:57.288Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:57.339Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:33:57.388Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-15T13:33:57.428Z [[31MERROR[39M]: Error creating car advert: CarAdvert validation failed: previousKeeperAcquisitionDate: Path `previousKeeperAcquisitionDate` is required., dateOfLastKeeperChange: Path `dateOfLastKeeperChange` is required., numberOfPreviousKeepers: Path `numberOfPreviousKeepers` is required., drivetrainType: Path `drivetrainType` is required., vehicleFullDescription: Path `vehicleFullDescription` is required., vehicleShortDescription: Path `vehicleShortDescription` is required.
+2025-03-15T13:36:38.532Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:38.757Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:38.837Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:38.904Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:38.965Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:39.029Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:39.093Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:39.151Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:39.216Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:36:39.293Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-15T13:36:39.394Z [[31MERROR[39M]: Error creating car advert: CarAdvert validation failed: dateOfLastKeeperChange: Path `dateOfLastKeeperChange` is required., numberOfPreviousKeepers: Path `numberOfPreviousKeepers` is required., drivetrainType: Path `drivetrainType` is required., vehicleFullDescription: Path `vehicleFullDescription` is required., vehicleShortDescription: Path `vehicleShortDescription` is required.
+2025-03-15T13:37:38.213Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T13:37:58.011Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T13:37:58.258Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-15T13:37:58.327Z [[31MERROR[39M]: Error creating car advert: CarAdvert validation failed: dateOfLastKeeperChange: Path `dateOfLastKeeperChange` is required., numberOfPreviousKeepers: Path `numberOfPreviousKeepers` is required., drivetrainType: Path `drivetrainType` is required., vehicleFullDescription: Path `vehicleFullDescription` is required., vehicleShortDescription: Path `vehicleShortDescription` is required.
+2025-03-15T13:38:20.593Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T13:41:20.679Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T19:40:31.381Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T19:40:31.602Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-15T19:40:31.662Z [[31MERROR[39M]: Error creating car advert: CarAdvert validation failed: dateOfLastKeeperChange: Path `dateOfLastKeeperChange` is required., numberOfPreviousKeepers: Path `numberOfPreviousKeepers` is required., drivetrainType: Path `drivetrainType` is required., vehicleFullDescription: Path `vehicleFullDescription` is required., vehicleShortDescription: Path `vehicleShortDescription` is required.
+2025-03-15T19:44:23.098Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T19:44:35.392Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T19:44:35.604Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-15T19:44:35.671Z [[31MERROR[39M]: Error creating car advert: CarAdvert validation failed: drivetrainType: Path `drivetrainType` is required., vehicleFullDescription: Path `vehicleFullDescription` is required., vehicleShortDescription: Path `vehicleShortDescription` is required.
+2025-03-15T19:50:06.363Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T19:50:23.290Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T19:50:23.500Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-15T19:56:09.586Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T21:48:27.516Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T21:55:53.785Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T21:56:16.339Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T21:56:18.403Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T21:56:19.371Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T21:58:12.928Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T22:00:17.223Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T22:01:14.542Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T22:01:14.790Z [[32MINFO[39M]: createCarAdvert request received
+2025-03-15T22:08:11.963Z [[32MINFO[39M]: getCarDetails request [object Object]
+2025-03-15T22:09:23.714Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T22:09:23.871Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T22:09:23.982Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T22:09:24.035Z [[32MINFO[39M]: presignedUrl request [object Object]
+2025-03-15T22:09:24.097Z [[32MINFO[39M]: createCarAdvert request received

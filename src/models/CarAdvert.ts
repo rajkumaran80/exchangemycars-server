@@ -8,8 +8,9 @@ export interface ICarAdvert extends Document {
     carMake: string;
     carModel: string;
     variant: string;
-    vehicleShortDescription: string;
-    vehicleFullDescription: string;
+    carModelDescription: string,
+    // vehicleShortDescription: string;
+    // vehicleFullDescription: string;
     bodyType: string;
     transmission: string;
     fuelType: string;
@@ -22,7 +23,8 @@ export interface ICarAdvert extends Document {
     vehicleIdentificationNumber: string;
     numberOfPreviousKeepers: number;
     dateOfLastKeeperChange: string;
-    previousKeeperAcquisitionDate: string;
+   // previousKeeperAcquisitionDate: string;
+    emissionClass: string;
     isStolen: boolean;
     isScrapped: boolean;
     isExported: boolean;
@@ -47,8 +49,9 @@ const CarAdvertSchema: Schema = new Schema({
     carMake: { type: String, required: true },
     carModel: { type: String, required: true },
     variant: { type: String, required: true },
-    vehicleShortDescription: { type: String, required: true },
-    vehicleFullDescription: { type: String, required: true },
+    carModelDescription: { type: String, required: true },
+    // vehicleShortDescription: { type: String, required: true },
+    // vehicleFullDescription: { type: String, required: true },
     bodyType: { type: String, required: true },
     transmission: { type: String, required: true },
     fuelType: { type: String, required: true },
@@ -61,7 +64,8 @@ const CarAdvertSchema: Schema = new Schema({
     vehicleIdentificationNumber: { type: String, required: true},
     numberOfPreviousKeepers: { type: Number, required: true },
     dateOfLastKeeperChange: { type: String, required: true },
-    previousKeeperAcquisitionDate: { type: String, required: true },
+   // previousKeeperAcquisitionDate: { type: String, required: true },
+    emissionClass: { type: String, required: true },
     isStolen: { type: Boolean, default: false },
     isScrapped: { type: Boolean, default: false },
     isExported: { type: Boolean, default: false },
