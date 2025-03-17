@@ -4,7 +4,6 @@ dotenv.config();
 import express from 'express';
 import session from 'express-session';
 import mongoose from 'mongoose';
-import cors from 'cors';
 import passport from 'passport';
 
 import { authRoutes } from './routes/authRoutes.js'
@@ -19,10 +18,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    methods: ['GET', 'POST', 'PUT']
-}));
 
 app.use(session({
     secret: process.env.SESSION_SECRET!,
