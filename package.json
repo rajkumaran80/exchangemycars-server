@@ -10,11 +10,13 @@
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node dist/server.js",
-    "dev": "nodemon --watch src --exec \"node --loader ts-node/esm\" src/server.ts",
+    "dev": "nodemon --watch src --exec \"ts-node\" src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "node --inspect-brk src/server.ts"
+    "debug": "node --inspect-brk dist/server.js",
+    "production": "NODE_ENV=production npm run start"
   },
-  "dependencies": {
+
+"dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
     "@aws-sdk/s3-request-presigner": "^3.750.0",
     "aws-sdk": "^2.1692.0",
