@@ -2,14 +2,7 @@ import {Request, Response} from "express";
 import logger from "../utils/logger.js";
 import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
-
-const s3Client = new S3Client({
-    region: process.env.AWS_REGION!,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    },
-});
+import s3Client from "../utils/s3Client.js";
 
 export const uploadPresignedUrl = async (req: Request, res: Response) => {
     logger.info(`presignedUrl request ${req}`);
@@ -29,7 +22,7 @@ export const uploadPresignedUrl = async (req: Request, res: Response) => {
 
         const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
-        console.log("presignedUrl:" + presignedUrl);
+        // console.log("presignedUrl:" + presignedUrl);
         res.json({ url: presignedUrl });
     } catch (error) {
         console.error("Error generating pre-signed URL:", error);
@@ -43,9 +36,13 @@ export const downloadPresignedUrl = async (key: string): Promise<string> => {
         Key: key,
     });
 
+    console.log('command ' + JSON.stringify(command));
+
+    // console.log(JSON.stringify(s3Client));
+
     const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
 
-    console.log("presignedUrl:" + url);
+    // console.log("presignedUrl:" + url);
 
     return url;
 };
