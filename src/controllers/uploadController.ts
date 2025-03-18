@@ -42,9 +42,12 @@ export const downloadPresignedUrl = async (key: string): Promise<string> => {
 
     // console.log(JSON.stringify(s3Client));
 
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
+    const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
 
     // console.log("presignedUrl:" + url);
 
-    return url;
+    const cloudFrontUrl = presignedUrl.replace(`https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com`, `https://${process.env.CLOUDFRONT_DOMAIN}`);
+
+
+    return cloudFrontUrl;
 };
