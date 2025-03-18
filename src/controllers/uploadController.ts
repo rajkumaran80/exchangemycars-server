@@ -22,7 +22,7 @@ export const uploadPresignedUrl = async (req: Request, res: Response) => {
 
         const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
-        const cloudFrontUrl = presignedUrl.replace(`https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com`, `https://${process.env.CLOUDFRONT_DOMAIN}`);
+        const cloudFrontUrl = presignedUrl.replace(`https://${process.env.AWS_BUCKET_NAME}.s3.eu-west-2.amazonaws.com`, `https://${process.env.CLOUDFRONT_DOMAIN}`);
 
         // console.log("cloudFrontUrl:" + cloudFrontUrl);
         res.json({ url: cloudFrontUrl });
