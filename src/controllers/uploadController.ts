@@ -16,7 +16,7 @@ export const uploadPresignedUrl = async (req: Request, res: Response) => {
 
         const command = new PutObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME!,
-            Key: `images/${fileName}`,
+            Key: `${process.env.AWS_IMAGE_DIR}/${fileName}`,
             ContentType: fileType as string,
         });
 
@@ -32,10 +32,10 @@ export const uploadPresignedUrl = async (req: Request, res: Response) => {
     }
 };
 
-export const downloadPresignedUrl = async (key: string): Promise<string> => {
+export const downloadPresignedUrl = async (fileName: string): Promise<string> => {
     const command = new GetObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME!,
-        Key: key,
+        Key: `${process.env.AWS_IMAGE_DIR}/${fileName}`
     });
 
     console.log('command ' + JSON.stringify(command));
