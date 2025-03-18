@@ -22,8 +22,10 @@ export const uploadPresignedUrl = async (req: Request, res: Response) => {
 
         const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
-        // console.log("presignedUrl:" + presignedUrl);
-        res.json({ url: presignedUrl });
+        const cloudFrontUrl = presignedUrl.replace(`https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com`, `https://${process.env.CLOUDFRONT_DOMAIN}`);
+
+        // console.log("cloudFrontUrl:" + cloudFrontUrl);
+        res.json({ url: cloudFrontUrl });
     } catch (error) {
         console.error("Error generating pre-signed URL:", error);
         res.status(500).json({ error: "Error generating pre-signed URL" });
