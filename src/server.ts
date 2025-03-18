@@ -3,16 +3,16 @@ dotenv.config();
 
 import app from "./app.js";
 import * as http from "node:http";
-import cors from "cors";
+// import cors from "cors";
 
 const PORT = process.env.PORT;
 
-console.log("CORS Origin:", process.env.CORS_ORIGIN);
+// console.log("CORS Origin:", process.env.CORS_ORIGIN);
 
 
-app.use(cors({
-  origin: process.env.CORS_ORIGIN
-}));
+// app.use(cors({
+//   origin: process.env.CORS_ORIGIN
+// }));
 
 
 
