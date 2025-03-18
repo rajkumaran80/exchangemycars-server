@@ -16,7 +16,7 @@ export const uploadPresignedUrl = async (req: Request, res: Response) => {
 
         const command = new PutObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME!,
-            Key: `uploads/${fileName}`,
+            Key: `images/${fileName}`,
             ContentType: fileType as string,
         });
 
