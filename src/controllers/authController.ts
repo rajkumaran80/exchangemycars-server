@@ -2,11 +2,7 @@ import { Request, Response , NextFunction} from 'express';
 import bcrypt from 'bcryptjs';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import User from '../models/User.js';
-import admin from 'firebase-admin';
-
-import axios from "axios";
 import passport from "passport";
-import app from "../app.js";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
@@ -74,16 +70,6 @@ export const authenticate = async (req: any, res: any, next: any) => {
   }
   catch (error) {
     res.status(401).json({ message: 'Token is not valid' });
-  }
-};
-
-export const verifyToken = async (req: any, res: any, next: any) => {
-  const { token } = req.body;
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    res.status(200).send(decodedToken);
-  } catch (error) {
-    res.status(401).send({ error: 'Invalid token' });
   }
 };
 

@@ -5,6 +5,7 @@ import express from 'express';
 import session from 'express-session';
 import mongoose from 'mongoose';
 import passport from 'passport';
+import cors from 'cors';
 
 import { authRoutes } from './routes/authRoutes.js'
 import { uploadRoutes } from './routes/uploadRoutes.js';
@@ -27,6 +28,13 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Enable CORS for all origins (if you want to restrict, use origin: 'http://your-frontend-origin')
+app.use(cors({
+  origin: '*', // Allow all origins (or specify your frontend URL here like 'http://localhost:3000')
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow these HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow these headers
+}));
 
 app.use((req, res, next) => {
     console.log("Incoming request:", req.path, req.headers.authorization, req.method);

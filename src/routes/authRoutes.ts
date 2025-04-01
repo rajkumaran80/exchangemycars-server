@@ -1,5 +1,5 @@
 import express from 'express';
-import {register, login, verifyToken} from '../controllers/authController.js';
+import {register, login} from '../controllers/authController.js';
 import passport from "passport";
 import app from "../app.js";
 // import {googleAuth} from "../controllers/googleAuthController.js";
@@ -9,7 +9,7 @@ const authRoutes = express.Router();
 authRoutes.post('/register', register);
 authRoutes.post('/login', login);
 // authRoutes.post('/google', googleAuth);
-authRoutes.post('/verifyToken', verifyToken);
+//authRoutes.post('/verifyToken', verifyToken);
 
 
 // Google authentication route
