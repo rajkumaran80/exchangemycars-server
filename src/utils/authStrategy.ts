@@ -5,7 +5,8 @@ import passport from 'passport';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as LocalStrategy } from 'passport-local';
-import User from "../models/User.js";
+import { comparePassword } from '../models/User.js';
+import prisma from './prisma.js';
 import jwt from 'jsonwebtoken';
 
 console.log('GOOGLE_CLIENT_ID' + process.env.GOOGLE_CLIENT_ID);
@@ -13,26 +14,22 @@ console.log('GOOGLE_CLIENT_ID' + process.env.GOOGLE_CLIENT_ID);
 export const configureLocalStrategy = () => {
     passport.use(new LocalStrategy(
         {
-            usernameField: 'email', // Username field is email in this case
-            passwordField: 'password', // Password field
+            usernameField: 'email',
+            passwordField: 'password',
         },
         async (email, password, done) => {
             try {
-                const user = await User.findOne({ email });
+                const user = await prisma.user.findUnique({ where: { email } });
 
-                // Check if user exists
                 if (!user) return done(null, false, { message: 'User not found' });
 
-                // Ensure both password and user.password are defined and not empty
                 if (!password || !user.password) {
                     return done(null, false, { message: 'Invalid credentials' });
                 }
 
-                // Compare password and hash
-                const isMatch = user.comparePassword(password);
+                const isMatch = await comparePassword(password, user.password);
                 if (!isMatch) return done(null, false, { message: 'Invalid credentials' });
 
-                // If successful, return the user object
                 return done(null, user);
             } catch (error) {
                 return done(error);
@@ -40,24 +37,19 @@ export const configureLocalStrategy = () => {
         }
     ));
 
-    // Serialize user into the session
-    passport.serializeUser((user, done) => {
-        // @ts-ignore
-        done(null, user._id);
+    passport.serializeUser((user: any, done) => {
+        done(null, user.id);
     });
 
-    // Deserialize user from session
-    passport.deserializeUser(async (id, done) => {
+    passport.deserializeUser(async (id: string, done) => {
         try {
-            const user = await User.findById(id);
+            const user = await prisma.user.findUnique({ where: { id } });
             done(null, user);
         } catch (error) {
             done(error, null);
         }
     });
 };
-
-
 
 export const configureGoogleStrategy = () => {
     passport.use(new GoogleStrategy({
@@ -68,26 +60,22 @@ export const configureGoogleStrategy = () => {
         state: true
     }, async (accessToken, refreshToken, profile, done) => {
         try {
-            // Check if the user already exists in the database
-            let user = await User.findOne({ googleId: profile.id });
+            let user = await prisma.user.findFirst({ where: { googleId: profile.id } });
 
             if (!user) {
-                // Create a new user if not found
-                user = new User({
-                    name: profile.displayName,
-                    email: profile.emails![0]?.value,
-                    googleId: profile.id,
+                user = await prisma.user.create({
+                    data: {
+                        name: profile.displayName,
+                        email: profile.emails![0]?.value,
+                        googleId: profile.id,
+                    }
                 });
-                await user.save();
             }
 
-            // Generate JWT token
-            const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
-
+            const jwtToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
 
             console.log('jwtToken: ' + jwtToken);
 
-            // You can either return the JWT or attach it to the user object (if needed)
             return done(null, { token: jwtToken, user: { name: user.name, email: user.email } });
         } catch (error) {
             return done(error);
@@ -105,4 +93,3 @@ export const configureFacebookStrategy = () => {
         return done(null, profile);
     }));
 };
-

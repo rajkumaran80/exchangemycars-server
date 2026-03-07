@@ -2,14 +2,14 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { S3Client } from '@aws-sdk/client-s3';
 
-console.log('process.env.AWS_ACCESS_KEY_ID' + process.env.AWS_ACCESS_KEY_ID)
-
 const s3Client = new S3Client({
-    region: process.env.AWS_REGION!,
+    region: 'us-east-1',
+    endpoint: process.env.MINIO_ENDPOINT!,
     credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      accessKeyId: process.env.MINIO_ACCESS_KEY!,
+      secretAccessKey: process.env.MINIO_SECRET_KEY!,
     },
-});
+    forcePathStyle: true,
+  });
 
 export default s3Client;

@@ -1,19 +1,19 @@
-import { Request, Response , NextFunction} from 'express';
+import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt, {JwtPayload} from 'jsonwebtoken';
-import User from '../models/User.js';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { hashPassword } from '../models/User.js';
+import prisma from '../utils/prisma.js';
 import passport from "passport";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
   try {
-    const user = new User({ name, email, password: password });
-    await user.save();
+    const hashed = await hashPassword(password);
+    const user = await prisma.user.create({
+      data: { name, email, password: hashed }
+    });
     res.status(201).json({ message: 'User registered successfully' });
-    const user2 = await User.findOne({ email });
-    if (!user2) return res.status(400).json({ message: 'User not found...' + email});
-    console.log("userpassword:" + user2.password);
-
+    console.log("user created:", user.email);
   } catch (error) {
     res.status(500).json({ message: 'Error registering user', error });
   }
@@ -22,20 +22,19 @@ export const register = async (req: Request, res: Response) => {
 export const login1 = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'User not found...' + email});
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(400).json({ message: 'User not found...' + email });
     console.log(password + ":" + user.password);
     const isMatch = await bcrypt.compare(password, user.password!);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
+    const jwtToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
     res.status(200).json({ token: jwtToken, user: { name: user.name, email: user.email } });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error });
   }
 };
 
-// Local login route
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate('local', { session: true }, (err: any, user: any, info: any) => {
     if (err) return res.status(500).json({ message: 'Internal Server Error' });
@@ -44,8 +43,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     req.login(user, (loginErr: any) => {
       if (loginErr) return res.status(500).json({ message: 'Login failed' });
 
-      // Send user and token as a response
-      const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
+      const jwtToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: '24h' });
       res.status(200).json({ token: jwtToken, user: { name: user.name, email: user.email } });
     });
   })(req, res, next);
@@ -57,20 +55,15 @@ export const authenticate = async (req: any, res: any, next: any) => {
     return res.status(401).json({ message: 'No token, authorization denied' });
   }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload & { id: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload & { userId: string };
     console.info("decoded:" + JSON.stringify(decoded));
-    // Fetch the full user document from the database
-    const user = await User.findById(decoded.userId);
+    const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
-    // Attach the full user document to the request
     req.user = user;
     next();
-  }
-  catch (error) {
+  } catch (error) {
     res.status(401).json({ message: 'Token is not valid' });
   }
 };
-
-

@@ -3,7 +3,6 @@ dotenv.config();
 
 import express from 'express';
 import session from 'express-session';
-import mongoose from 'mongoose';
 import passport from 'passport';
 import cors from 'cors';
 
@@ -40,11 +39,6 @@ app.use((req, res, next) => {
     console.log("Incoming request:", req.path, req.headers.authorization, req.method);
     next();
 });
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI!)
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));
 
 // Call both strategy configuration functions
 configureLocalStrategy();

@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
-import {downloadPresignedUrl} from "./uploadController.js";
-import CarAdvert, {ICarAdvert} from "../models/CarAdvert.js";
+import { downloadPresignedUrl } from "./uploadController.js";
+import prisma from '../utils/prisma.js';
 
-// Configure geocoder
 const getCoordinates = async (postcode: string) => {
     try {
         const formattedPostcode = postcode.replace(/\s+/g, '').toUpperCase();
@@ -17,7 +16,7 @@ const getCoordinates = async (postcode: string) => {
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-        const data = await response.json();
+        const data = await response.json() as any[];
         if (!data.length) {
             console.log(`No coordinates found for postcode: ${postcode}`);
             return null;
@@ -34,125 +33,133 @@ const getCoordinates = async (postcode: string) => {
     }
 };
 
-const createGeoFilter = (longitude: number, latitude: number, distanceMiles: number) => ({
-    coordinates: {
-        $geoWithin: {
-            $centerSphere: [
-                [longitude, latitude],
-                distanceMiles / 3963.2 // Use more accurate Earth radius in miles
-            ]
+// Haversine distance in miles using SQL
+const haversineDistanceSql = (latCol: string, lonCol: string, lat: number, lon: number) =>
+    `(3963.2 * acos(LEAST(1.0, cos(radians(${lat})) * cos(radians(${latCol})) * cos(radians(${lonCol}) - radians(${lon})) + sin(radians(${lat})) * sin(radians(${latCol})))))`;
+
+const buildWhereClause = (filters: any, geoLat?: number, geoLon?: number, distanceMiles?: number): { where: string; params: any[] } => {
+    const conditions: string[] = [];
+    const params: any[] = [];
+    let paramIdx = 1;
+
+    const numberFields = ['numberOfDoors', 'numberOfSeats'];
+
+    for (const [key, value] of Object.entries(filters)) {
+        if (!value || (Array.isArray(value) && (value as any[]).length === 0)) continue;
+
+        switch (key) {
+            case 'priceFrom':
+                conditions.push(`"price" >= $${paramIdx++}`);
+                params.push(Number(value));
+                break;
+            case 'priceTo':
+                conditions.push(`"price" <= $${paramIdx++}`);
+                params.push(Number(value));
+                break;
+            case 'yearOfManufacture_from':
+                conditions.push(`"yearOfManufacture" >= $${paramIdx++}`);
+                params.push(Number(value));
+                break;
+            case 'yearOfManufacture_to':
+                conditions.push(`"yearOfManufacture" <= $${paramIdx++}`);
+                params.push(Number(value));
+                break;
+            case 'mileageFrom':
+                conditions.push(`"mileage" >= $${paramIdx++}`);
+                params.push(Number(value));
+                break;
+            case 'mileageTo':
+                conditions.push(`"mileage" <= $${paramIdx++}`);
+                params.push(Number(value));
+                break;
+            case 'evRangeFrom':
+                conditions.push(`"evRangeWltpMiles" >= $${paramIdx++}`);
+                params.push(Number(value));
+                break;
+            case 'numberOfDoors':
+            case 'numberOfSeats':
+                if (Array.isArray(value)) {
+                    const placeholders = (value as any[]).map(() => `$${paramIdx++}`).join(',');
+                    conditions.push(`"${key}" IN (${placeholders})`);
+                    (value as any[]).forEach(v => params.push(Number(v)));
+                } else {
+                    conditions.push(`"${key}" = $${paramIdx++}`);
+                    params.push(Number(value));
+                }
+                break;
+            default:
+                if (Array.isArray(value)) {
+                    const placeholders = (value as any[]).map(() => `$${paramIdx++}`).join(',');
+                    conditions.push(`"${key}" IN (${placeholders})`);
+                    (value as any[]).forEach(v => params.push(v));
+                } else {
+                    conditions.push(`"${key}" = $${paramIdx++}`);
+                    params.push(value);
+                }
         }
     }
-});
+
+    if (geoLat !== undefined && geoLon !== undefined && distanceMiles !== undefined) {
+        conditions.push(`${haversineDistanceSql('"latitude"', '"longitude"', geoLat, geoLon)} <= ${distanceMiles}`);
+    }
+
+    return {
+        where: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '',
+        params
+    };
+};
 
 export const searchCars = async (req: Request, res: Response) => {
     try {
         const { postcode, distance, sortBy = 'relevance', ...otherFilters } = req.query;
-        const query = buildQuery(otherFilters);
 
-        // Handle geospatial query
-        let geoFilter = {};
+        let geoLat: number | undefined;
+        let geoLon: number | undefined;
+        let distanceMiles: number | undefined;
+
         if (postcode && distance && distance !== 'National') {
             const userLocation = await getCoordinates(postcode as string);
             if (!userLocation) return res.status(400).json({ message: 'Invalid postcode' });
-
-            const bufferDistance = Number(distance) * 1.1;
-            geoFilter = createGeoFilter(
-                userLocation.latitude,
-                userLocation.longitude,
-                bufferDistance
-            );
+            geoLat = userLocation.latitude;
+            geoLon = userLocation.longitude;
+            distanceMiles = Number(distance) * 1.1;
         }
 
-        // Build base pipeline
-        const aggregationPipeline: any[] = [];
+        const { where, params } = buildWhereClause(otherFilters, geoLat, geoLon, distanceMiles);
 
-        // Handle distance sorting first (must be first stage)
-        if (sortBy === 'distance_asc' && postcode) {
-            const userLocation = await getCoordinates(postcode as string);
-            if (userLocation) {
-                aggregationPipeline.push({
-                    $geoNear: {
-                        near: {
-                            type: 'Point',
-                            coordinates: [userLocation.longitude, userLocation.latitude]
-                        },
-                        distanceField: 'distance',
-                        query: { ...query, ...geoFilter },
-                        spherical: true
-                    }
-                });
-            }
-        } else {
-            // Regular match stage
-            if (Object.keys(query).length > 0 || Object.keys(geoFilter).length > 0) {
-                aggregationPipeline.push({
-                    $match: { ...query, ...geoFilter }
-                });
-            }
-        }
-
-        // Add sorting
+        let orderBy = '';
         switch (sortBy) {
-            case 'price_asc':
-                aggregationPipeline.push({ $sort: { price: 1 } });
-                break;
-            case 'price_desc':
-                aggregationPipeline.push({ $sort: { price: -1 } });
-                break;
-            case 'mileage_asc':
-                aggregationPipeline.push({ $sort: { mileage: 1 } });
-                break;
-            case 'yearOfManufacture_desc':
-                aggregationPipeline.push({ $sort: { yearOfManufacture: -1 } });
-                break;
-            case 'yearOfManufacture_asc':
-                aggregationPipeline.push({ $sort: { yearOfManufacture: 1 } });
-                break;
-            case 'date_desc':
-                aggregationPipeline.push({ $sort: { createdAt: -1 } });
+            case 'price_asc': orderBy = 'ORDER BY "price" ASC'; break;
+            case 'price_desc': orderBy = 'ORDER BY "price" DESC'; break;
+            case 'mileage_asc': orderBy = 'ORDER BY "mileage" ASC'; break;
+            case 'yearOfManufacture_desc': orderBy = 'ORDER BY "yearOfManufacture" DESC'; break;
+            case 'yearOfManufacture_asc': orderBy = 'ORDER BY "yearOfManufacture" ASC'; break;
+            case 'date_desc': orderBy = 'ORDER BY "createdAt" DESC'; break;
+            case 'distance_asc':
+                if (geoLat !== undefined && geoLon !== undefined) {
+                    orderBy = `ORDER BY ${haversineDistanceSql('"latitude"', '"longitude"', geoLat, geoLon)} ASC`;
+                }
                 break;
         }
 
-        // Add common pipeline stages
-        aggregationPipeline.push(
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "owner",
-                    foreignField: "_id",
-                    as: "owner"
-                }
-            },
-            {
-                $unwind: {
-                    path: "$owner",
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    // Include all fields except MongoDB internal fields
-                    __v: 0,
-                    'owner.__v': 0,
-                    'owner.password': 0,
-                    // Add other fields to include/exclude as needed
-                }
-            }
-        );
+        const sql = `
+            SELECT ca.*, 
+                   u.id as "ownerId_join", u.name as "ownerName", u.email as "ownerEmail"
+            FROM car_adverts ca
+            LEFT JOIN users u ON ca."ownerId" = u.id
+            ${where}
+            ${orderBy}
+        `;
 
-        // Execute aggregation
-        const carAdverts = await CarAdvert.aggregate(aggregationPipeline);
+        const carAdverts = await prisma.$queryRawUnsafe<any[]>(sql, ...params);
 
-        // console.log('carAdverts ' + JSON.stringify(carAdverts));
-
-        // Process images
         const results = await Promise.all(carAdverts.map(async (carAdvert) => {
             const presignedPhotos = carAdvert?.images
                 ? await Promise.all(carAdvert.images.map((image: string) => downloadPresignedUrl(image)))
                 : [];
             return {
-                ...carAdvert,  // Remove .toObject()
+                ...carAdvert,
+                owner: { id: carAdvert.ownerId_join, name: carAdvert.ownerName, email: carAdvert.ownerEmail },
                 images: presignedPhotos
             };
         }));
@@ -167,111 +174,46 @@ export const searchCars = async (req: Request, res: Response) => {
 export const searchFilters = async (req: Request, res: Response) => {
     try {
         const { postcode, distance, sortBy, ...otherFilters } = req.body;
-        const query = buildQuery(otherFilters);
 
-        // Handle geospatial query
+        let geoLat: number | undefined;
+        let geoLon: number | undefined;
+        let distanceMiles: number | undefined;
+
         if (postcode && distance && distance !== 'National') {
             const userLocation = await getCoordinates(postcode as string);
             if (!userLocation) return res.status(400).json({ message: 'Invalid postcode' });
-
-            const bufferDistance = Number(distance) * 1.1;
-            Object.assign(query, createGeoFilter(
-                userLocation.latitude,
-                userLocation.longitude,
-                bufferDistance
-            ));
+            geoLat = userLocation.latitude;
+            geoLon = userLocation.longitude;
+            distanceMiles = Number(distance) * 1.1;
         }
 
-        console.log(JSON.stringify(query));
+        const { where, params } = buildWhereClause(otherFilters, geoLat, geoLon, distanceMiles);
 
-        // Get filter counts
-        const filterCounts = await getFilterCounts(query);
-        const totalCars = await CarAdvert.countDocuments(query);
+        const filterFields = [
+            "carMake", "carModel", "variant",
+            "transmission", "fuelType", "bodyType",
+            "colour", "numberOfDoors", "numberOfSeats",
+            "drivetrainType", "emissionClass"
+        ];
 
-        res.json({
-            options: filterCounts,
-            totalCars
-        });
+        const filterCounts: any = {};
+        for (const field of filterFields) {
+            const rows = await prisma.$queryRawUnsafe<{ value: any; count: bigint }[]>(
+                `SELECT "${field}" as value, COUNT(*) as count FROM car_adverts ${where} GROUP BY "${field}" ORDER BY count DESC`,
+                ...params
+            );
+            filterCounts[field] = rows.map(r => ({ _id: r.value, count: Number(r.count) }));
+        }
+
+        const totalResult = await prisma.$queryRawUnsafe<{ total: bigint }[]>(
+            `SELECT COUNT(*) as total FROM car_adverts ${where}`,
+            ...params
+        );
+        const totalCars = Number(totalResult[0]?.total ?? 0);
+
+        res.json({ options: filterCounts, totalCars });
     } catch (error) {
         console.error("Options Error:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
-const buildQuery = (filters: any) => {
-    const query: any = {};
-
-    Object.entries(filters).forEach(([key, value]) => {
-        if (!value || (Array.isArray(value) && value.length === 0)) return;
-
-        switch (key) {
-            case 'price_from':
-            case 'price_to':
-            case 'yearOfManufacture_from':
-            case 'yearOfManufacture_to':
-            case 'mileage_from':
-            case 'mileage_to':
-                const [field, rawOperator] = key.split(/(?=_)/);
-                const operator = rawOperator.replace('_', '');
-                const mongoOperator = operator === 'from' ? '$gte' : '$lte';
-                query[field] = query[field] || {};
-                query[field][mongoOperator] = Number(value);
-                break;
-
-            case 'numberOfDoors':
-            case 'numberOfSeats':
-                if (Array.isArray(value)) {
-                    query[key] = { $in: value.map(Number) };
-                } else {
-                    query[key] = Number(value);
-                }
-                break;
-
-            default:
-                if (Array.isArray(value)) {
-                    query[key] = { $in: value };
-                } else {
-                    query[key] = value;
-                }
-        }
-    });
-
-    return query;
-};
-
-async function getFilterCounts(baseQuery: any) {
-    const counts: any = {};
-    const filters = [
-        "carMake", "carModel", "variant",
-        "transmission", "fuelType", "bodyType",
-        "colour", "numberOfDoors", "numberOfSeats"
-    ];
-
-    // Define filter dependencies
-    const filterDependencies: { [key: string]: string[] } = {
-        carMake: ['carModel', 'variant'],
-        carModel: ['variant'],
-        variant: []
-    };
-
-    for (const filter of filters) {
-        // Clone and remove current filter + its dependencies
-        const query = JSON.parse(JSON.stringify(baseQuery));
-
-        // Remove dependent filters
-        const dependencies = filterDependencies[filter] || [];
-        [filter, ...dependencies].forEach(f => delete query[f]);
-
-        counts[filter] = await CarAdvert.aggregate([
-            { $match: query },
-            { $group: {
-                    _id: `$${filter}`,
-                    count: { $sum: 1 }
-                }},
-            { $sort: { count: -1 } }
-        ]);
-    }
-
-    return counts;
-}
-

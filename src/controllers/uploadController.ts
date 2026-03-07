@@ -15,8 +15,8 @@ export const uploadPresignedUrl = async (req: Request, res: Response) => {
         }
 
         const command = new PutObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME!,
-            Key: `${process.env.AWS_IMAGE_DIR}/${fileName}`,
+            Bucket: process.env.MINIO_BUCKET_NAME!,
+            Key: `${process.env.MINIO_IMAGE_DIR}/${fileName}`,
             ContentType: fileType as string,
         });
 
@@ -30,8 +30,8 @@ export const uploadPresignedUrl = async (req: Request, res: Response) => {
 
 export const downloadPresignedUrl = async (fileName: string): Promise<string> => {
     const command = new GetObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME!,
-        Key: `${process.env.AWS_IMAGE_DIR}/${fileName}`
+        Bucket: process.env.MINIO_BUCKET_NAME!,
+        Key: `${process.env.MINIO_IMAGE_DIR}/${fileName}`
     });
 
     console.log('command ' + JSON.stringify(command));
