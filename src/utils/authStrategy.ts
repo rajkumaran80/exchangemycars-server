@@ -76,7 +76,7 @@ export const configureGoogleStrategy = () => {
 
             console.log('jwtToken: ' + jwtToken);
 
-            return done(null, { token: jwtToken, user: { name: user.name, email: user.email } });
+            return done(null, { token: jwtToken, user: { name: user.name, email: user.email } } as any);
         } catch (error) {
             return done(error);
         }

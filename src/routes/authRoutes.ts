@@ -28,7 +28,7 @@ authRoutes.get("/google/callback",
         }
 
         // Extract token and user info from req.user
-        const { token, user } = req.user as { token: string; user: { name: string; email: string } };
+        const { token, user } = req.user as unknown as { token: string; user: { name: string; email: string } };
 
         // Redirect to frontend with token and user info
         const encodedUser = encodeURIComponent(JSON.stringify(user)); // Encode user data

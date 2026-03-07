@@ -153,7 +153,7 @@ export const searchCars = async (req: Request, res: Response) => {
 
         const carAdverts = await prisma.$queryRawUnsafe<any[]>(sql, ...params);
 
-        const results = await Promise.all(carAdverts.map(async (carAdvert) => {
+        const results = await Promise.all(carAdverts.map(async (carAdvert: any) => {
             const presignedPhotos = carAdvert?.images
                 ? await Promise.all(carAdvert.images.map((image: string) => downloadPresignedUrl(image)))
                 : [];
@@ -202,7 +202,7 @@ export const searchFilters = async (req: Request, res: Response) => {
                 `SELECT "${field}" as value, COUNT(*) as count FROM car_adverts ${where} GROUP BY "${field}" ORDER BY count DESC`,
                 ...params
             );
-            filterCounts[field] = rows.map(r => ({ _id: r.value, count: Number(r.count) }));
+            filterCounts[field] = rows.map((r: { value: any; count: bigint }) => ({ _id: r.value, count: Number(r.count) }));
         }
 
         const totalResult = await prisma.$queryRawUnsafe<{ total: bigint }[]>(
