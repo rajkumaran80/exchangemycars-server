@@ -1,0 +1,42 @@
+import {Request, Response} from "express";
+import logger from "../utils/logger.js";
+import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
+import {getSignedUrl} from "@aws-sdk/s3-request-presigner";
+import s3Client from "../utils/s3Client.js";
+
+export const uploadPresignedUrl = async (req: Request, res: Response) => {
+    logger.info(`presignedUrl request ${req}`);
+
+    try {
+        const { fileName, fileType } = req.query;
+
+        if (!fileName || !fileType) {
+            return res.status(400).json({ error: "Missing fileName or fileType" });
+        }
+
+        const command = new PutObjectCommand({
+            Bucket: process.env.MINIO_BUCKET_NAME!,
+            Key: `${process.env.MINIO_IMAGE_DIR}/${fileName}`,
+            ContentType: fileType as string,
+        });
+
+        const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        res.json({ url: presignedUrl });
+    } catch (error) {
+        console.error("Error generating pre-signed URL:", error);
+        res.status(500).json({ error: "Error generating pre-signed URL" });
+    }
+};
+
+export const downloadPresignedUrl = async (fileName: string): Promise<string> => {
+    const command = new GetObjectCommand({
+        Bucket: process.env.MINIO_BUCKET_NAME!,
+        Key: `${process.env.MINIO_IMAGE_DIR}/${fileName}`
+    });
+
+    console.log('command ' + JSON.stringify(command));
+
+    const presignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL expires in 1 hour
+
+    return presignedUrl;
+};
