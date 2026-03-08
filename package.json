@@ -9,6 +9,7 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=local tsx watch src/server.ts",
+    "postinstall": "node scripts/patch-slow-buffer.js",
     "debug": "NODE_ENV=local node --inspect-brk --loader ts-node/esm src/server.ts",
     "start": "NODE_ENV=production node dist/server.js",
     "build": "tsc",
